@@ -26,6 +26,11 @@ def GetVersion() -> str:
     return re.findall(r'__version__\s*=\s*\'([.\d]+)\'', f.read())[0]
 
 
+tests_requires = [
+    "pytest",
+]
+
+
 setup(
     name='earthengine-api',
     version=GetVersion(),
@@ -49,6 +54,9 @@ setup(
         'httplib2>=0.9.2,<1dev',
         'requests'
     ],
+    extras_require={
+        "tests": tests_requires,
+    },
     entry_points={
         'console_scripts': ['earthengine = ee.cli.eecli:main',],
     },
