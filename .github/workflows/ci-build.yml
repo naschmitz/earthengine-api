@@ -60,7 +60,7 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
     - name: Install EE API
       run: |
-        pip install -e .
+        pip install -e ./python
     - uses: 'actions/checkout@v4'
     - name: Run unit tests
       run: |
