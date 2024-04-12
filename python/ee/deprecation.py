@@ -74,8 +74,11 @@ class _DeprecatedAsset:
   has_warning_been_issued: bool = False
 
   @classmethod
-  def _ParseDateString(cls, date_str: str) -> datetime.datetime:
-    return datetime.datetime.fromisoformat(date_str)
+  def _ParseDateString(cls, date_str: str) -> Optional[datetime.datetime]:
+    try:
+      return datetime.datetime.fromisoformat(date_str)
+    except ValueError:
+      return None
 
   @classmethod
   def FromStacLink(cls, stac_link: Dict[str, Any]) -> _DeprecatedAsset:
