@@ -123,7 +123,6 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
         with self.assertDoesNotWarn():
             FakeClass().some_function("some-value", "valid-asset")
 
-    #
     @parameterized.named_parameters(
         ("deprecated_asset", "deprecated_asset"),
         ("date_and_learn_more", "date_and_learn_more"),
@@ -134,25 +133,21 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
         with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset_id]):
             FakeClass(asset_id, "some-value")
 
-    #
     def test_warning_thrown_args_instance_method(self):
         asset = "deprecated_asset"
         with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
             FakeClass().some_function("some-value", asset)
 
-    #
     def test_warning_thrown_kwargs_init(self):
         asset = "deprecated_asset"
         with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
             FakeClass(arg1=asset)
 
-    #
     def test_warning_thrown_kwargs_instance_method(self):
         asset = "deprecated_asset"
         with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
             FakeClass().some_function(arg2=asset)
 
-    #
     def test_same_warning_not_thrown(self):
         # Verifies the same warning message is not thrown twice.
         asset = "deprecated_asset"
