@@ -252,17 +252,14 @@ class ImageTest(apitestcase.ApiTestCase):
 
 
 class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
+    
+  @property
+  def _base_image(self):
+    return ee.Image(1)
 
-  def setUp(self):  # pylint: disable=g-missing-super-call
-    self.InitializeApi(should_mock=False)
-    self.cloud_api_resource = mock.MagicMock()
-    self.cloud_api_resource.projects().thumbnails().create(
-    ).execute.return_value = {
-        'name': 'thumbName'
-    }
-
-    self.base_image = ee.Image(1)
-    self.geo_json = {
+  @property
+  def _geo_json(self):
+    return {
         'type':
             'Polygon',
         'coordinates': [[
@@ -271,35 +268,40 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
             [-103.623046875, 41.82045509614031],
         ]],
     }
-    self.expected_geometry = ee.Geometry(self.geo_json, geodesic=False)
+    
+  @property
+  def _expected_geometry(self):
+    return ee.Geometry(self._geo_json, geodesic=False)
 
   def assertImageEqual(self, expected, actual):
     self.assertDictEqual(
         serializer.encode(expected),
         serializer.encode(actual))
 
-  @unittest.skip('Does not work on github')
   def test_thumb_with_dimensions_region_crs(self):
     """Verifies Thumbnail ID and URL generation in the Cloud API."""
-
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      url = self.base_image.getThumbURL({
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getThumbId = self.old_get_thumb_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      url = self._base_image.getThumbURL({
           'dimensions': [13, 42],
-          'region': self.geo_json,
+          'region': self._geo_json,
           'crs': EPSG_4326,
       })
 
-      self.assertEqual('None/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+      # The tile base url is empty because ApiTestCase sets it that way.
+      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
                        url)
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
-              self.base_image.setDefaultProjection(
+              self._base_image.setDefaultProjection(
                   crs=EPSG_4326, crsTransform=[1, 0, 0, 0, -1, 0]
               ).clipToBoundsAndScale(
-                  geometry=ee.Geometry(self.geo_json, geodesic=False),
+                  geometry=ee.Geometry(self._geo_json, geodesic=False),
                   width=13,
                   height=42,
               )
@@ -307,80 +309,88 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
       )
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
-  @unittest.skip('Does not work on github')
   def test_thumb_with_dimensions_region_json(self):
     # Try it with the region as a GeoJSON string.
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      self.base_image.getThumbURL({
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getThumbId = self.old_get_thumb_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      self._base_image.getThumbURL({
           'dimensions': [13, 42],
-          'region': json.dumps(self.geo_json),
+          'region': json.dumps(self._geo_json),
       })
 
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
-              self.base_image.clipToBoundsAndScale(
-                  geometry=self.expected_geometry, width=13, height=42)))
+              self._base_image.clipToBoundsAndScale(
+                  geometry=self._expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
-  @unittest.skip('Does not work on github')
   def test_thumb_with_dimensions_list_coords(self):
     # Try it with the region as a list of coordinates.
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      self.base_image.getThumbURL({
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getThumbId = self.old_get_thumb_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      self._base_image.getThumbURL({
           'dimensions': [13, 42],
           'region': [[-180, -90], [-180, 90], [180, 90]],
       })
 
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
       expected_geometry = ee.Geometry.Polygon(
           [[-180, -90], [-180, 90], [180, 90]], proj=None, geodesic=False)
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
-              self.base_image.clipToBoundsAndScale(
+              self._base_image.clipToBoundsAndScale(
                   geometry=expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
-  @unittest.skip('Does not work on github')
   def test_thumb_with_dimensions_list_min_max(self):
     # Try it with the region as a list of coordinates.
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      self.base_image.getThumbURL({
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getThumbId = self.old_get_thumb_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      self._base_image.getThumbURL({
           'dimensions': [13, 42],
           'region': [-180, -90, 180, 90],
       })
 
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
       expected_geometry = ee.Geometry.Rectangle(
           [-180, -90, 180, 90], proj=None, geodesic=False)
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
-              self.base_image.clipToBoundsAndScale(
+              self._base_image.clipToBoundsAndScale(
                   geometry=expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
-  @unittest.skip('Does not work on github')
   def test_thumb_with_visualization_params(self):
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      self.base_image.getThumbURL({
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getThumbId = self.old_get_thumb_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      self._base_image.getThumbURL({
           'dimensions': [13, 42],
-          'region': self.geo_json,
+          'region': self._geo_json,
           'min': 0
       })
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
 
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
-              self.base_image.clipToBoundsAndScale(
-                  geometry=self.expected_geometry, width=13,
+              self._base_image.clipToBoundsAndScale(
+                  geometry=self._expected_geometry, width=13,
                   height=42).visualize(min=0)))
 
   def test_build_download_id_image_builds_image_per_band(self):
@@ -566,47 +576,48 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
     self.assertEqual(1, image_str.count(str(dimensions)))
     self.assertEqual(0, image_str.count(str(scale)))
 
-  @unittest.skip('Does not work on github')
   def test_download_url(self):
     """Verifies that the getDownloadURL request is constructed correctly."""
-
-    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
-      url = self.base_image.getDownloadURL()
-      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      ee.data.getDownloadId = self.old_get_download_id
+      cloud_api_resource.projects().thumbnails().create().execute.return_value = {'name': 'thumbName'}
+      url = self._base_image.getDownloadURL()
+      _, kwargs = cloud_api_resource.projects().thumbnails(
       ).create.call_args
       self.assertEqual(
-          serializer.encode(self.base_image, for_cloud_api=True),
+          serializer.encode(self._base_image, for_cloud_api=True),
           kwargs['body']['expression'])
       self.assertEqual('ZIPPED_GEO_TIFF_PER_BAND', kwargs['body']['fileFormat'])
       self.assertEqual('projects/earthengine-legacy', kwargs['parent'])
-      self.assertEqual('None/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
                        url)
 
   def test_prepare_for_export_simple(self):
     """Verifies proper handling of export-related parameters."""
 
     with apitestcase.UsingCloudApi():
-      image, params = self.base_image.prepare_for_export({'something': 'else'})
-      self.assertImageEqual(self.base_image, image)
+      image, params = self._base_image.prepare_for_export({'something': 'else'})
+      self.assertImageEqual(self._base_image, image)
       self.assertEqual({'something': 'else'}, params)
 
   def test_prepare_for_export_with_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'crs': 'ABCD',
           'crs_transform': '1,2,3,4,5,6'
       })
       self.assertImageEqual(
-          self.base_image.reproject(
+          self._base_image.reproject(
               crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]), image)
       self.assertEqual({}, params)
 
   def test_prepare_for_export_invalid_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       with self.assertRaises(ee_exception.EEException):
-        self.base_image.prepare_for_export({'crs_transform': '1,2,3,4,5,6'})
+        self._base_image.prepare_for_export({'crs_transform': '1,2,3,4,5,6'})
       with self.assertRaises(ValueError):
-        self.base_image.prepare_for_export({
+        self._base_image.prepare_for_export({
             'crs': 'ABCD',
             'crs_transform': 'x'
         })
@@ -614,11 +625,11 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
   def test_prepare_for_export_with_polygon(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'dimensions': '3x2',
           'region': polygon
       })
-      expected = self.base_image.clipToBoundsAndScale(
+      expected = self._base_image.clipToBoundsAndScale(
           width=3, height=2, geometry=polygon)
       self.assertImageEqual(expected, image)
       self.assertEqual({}, params)
@@ -626,21 +637,21 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
   def test_prepare_for_export_with_scale_and_region(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'scale': 8,
           'region': polygon.toGeoJSONString(),
           'something': 'else'
       })
       expected_polygon = ee.Geometry(polygon.toGeoJSON(), geodesic=False)
       self.assertImageEqual(
-          self.base_image.clipToBoundsAndScale(
+          self._base_image.clipToBoundsAndScale(
               scale=8, geometry=expected_polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
   def test_prepare_for_export_with_region_dimensions_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'crs': 'ABCD',
           'crs_transform': '[1,2,3,4,5,6]',
           'dimensions': [3, 2],
@@ -648,7 +659,7 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
           'something': 'else'
       })
       expected_polygon = ee.Geometry(polygon.toGeoJSON(), geodesic=False)
-      projected = self.base_image.reproject(
+      projected = self._base_image.reproject(
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
 
       self.assertImageEqual(
@@ -659,13 +670,13 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
   def test_prepare_for_export_with_dimensions_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       # Special case of crs+transform+two dimensions
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'crs': 'ABCD',
           'crs_transform': [1, 2, 3, 4, 5, 6],
           'dimensions': [3, 2],
           'something': 'else'
       })
-      reprojected_image = self.base_image.reproject(
+      reprojected_image = self._base_image.reproject(
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
 
       self.assertEqual(
@@ -680,25 +691,25 @@ class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
   def test_prepare_for_export_with_only_region(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'region': polygon,
           'something': 'else'
       })
 
       self.assertEqual(
-          self.base_image.clip(polygon), image)
+          self._base_image.clip(polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
   def test_prepare_for_export_with_crs_no_transform(self):
     with apitestcase.UsingCloudApi():
       # CRS with no crs_transform causes a "soft" reprojection. Make sure that
       # the (crs, crsTransform, dimensions) special case doesn't trigger.
-      image, params = self.base_image.prepare_for_export({
+      image, params = self._base_image.prepare_for_export({
           'crs': 'ABCD',
           'dimensions': [3, 2],
           'something': 'else'
       })
-      projected = self.base_image.setDefaultProjection(
+      projected = self._base_image.setDefaultProjection(
           crs='ABCD', crsTransform=[1, 0, 0, 0, -1, 0])
 
       self.assertEqual(projected.clipToBoundsAndScale(width=3, height=2), image)
