@@ -149,7 +149,10 @@ def Initialize(
     http_transport: The http transport method to use when making requests.
     project: The client project ID or number to use when making API calls.
   """
+  print('TEMP_LOGGING: Enter ee.Initialize()')
+
   if credentials == 'persistent':
+    print('TEMP_LOGGING: credentials == "persistent"')
     credentials = data.get_persistent_credentials()
   if not project and credentials and hasattr(credentials, 'quota_project_id'):
     project = credentials.quota_project_id
