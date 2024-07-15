@@ -1,6 +1,6 @@
 """The EE Python library."""
 
-__version__ = '0.1.409'
+__version__ = '0.1.411'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -15,6 +15,7 @@ from typing import Any, Hashable, List as ListType, Optional, Sequence, Tuple, T
 from ee import _utils
 from ee import batch
 from ee import data
+from ee import deprecation
 from ee import deserializer
 from ee import ee_types as types
 from ee import oauth

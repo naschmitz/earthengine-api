@@ -13,13 +13,18 @@ from typing import Any, Callable, Dict, Optional, Type, Union
 
 from ee import _utils
 from ee import apifunction
+from ee import computedobject
 from ee import deprecation
 from ee import ee_date
 from ee import ee_exception
+from ee import ee_number
 from ee import element
 from ee import filter as ee_filter
 from ee import function
 from ee import geometry as ee_geometry
+from ee import image
+
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 
 
 class Collection(element.Element):
@@ -55,6 +60,44 @@ class Collection(element.Element):
     """
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
+
+  @staticmethod
+  def name() -> str:
+    return 'Collection'
+
+  def distance(
+      self,
+      searchRadius: Optional[_NumberType] = None,
+      maxError: Optional[_NumberType] = None,
+  ) -> image.Image:
+    """Returns a distance image for the collection.
+
+    Produces a DOUBLE image where each pixel is the distance in meters from the
+    pixel center to the nearest Point, LineString, or polygonal boundary in the
+    collection. Note distance is also measured within interiors of polygons.
+    Pixels that are not within 'searchRadius' meters of a geometry will be
+    masked out.
+
+    Distances are computed on a sphere, so there is a small error proportional
+    to the latitude difference between each pixel and the nearest geometry.
+
+    Args:
+      searchRadius: Maximum distance in meters from each pixel to look for
+        edges. Pixels will be masked unless there are edges within this
+        distance.
+      maxError: Maximum reprojection error in meters, only used if the input
+        polylines require reprojection. If '0' is provided, then this operation
+        will fail if projection is required.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.distance', self, searchRadius, maxError
+    )
+
+  @staticmethod
+  def elementType() -> Type[element.Element]:
+    """Returns the type of the collection's elements."""
+    return element.Element
 
   def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
     """Apply a filter to this collection.
@@ -158,6 +201,34 @@ class Collection(element.Element):
     """
     return super().getInfo()
 
+  def iterate(
+      self, algorithm: Callable[[Any, Any], Any], first: Optional[Any] = None
+  ) -> Any:
+    """Iterates over a collection with an algorithm.
+
+    Applies a user-supplied function to each element of a collection. The
+    user-supplied function is given two arguments: the current element, and
+    the value returned by the previous call to iterate() or the first argument,
+    for the first iteration. The result is the value returned by the final
+    call to the user-supplied function.
+
+    Args:
+      algorithm: The function to apply to each element. Must take two
+          arguments - an element of the collection and the value from the
+          previous iteration.
+      first: The initial state.
+
+    Returns:
+      The result of the Collection.iterate() call.
+
+    Raises:
+      ee_exception.EEException: if algorithm is not a function.
+    """
+    element_type = self.elementType()
+    with_cast = lambda e, prev: algorithm(element_type(e, None), prev)
+    return apifunction.ApiFunction.call_(
+        'Collection.iterate', self, with_cast, first)
+
   @_utils.accept_opt_prefix(('opt_property', 'prop'), 'opt_ascending')
   def limit(
       self,
@@ -186,34 +257,6 @@ class Collection(element.Element):
       args['ascending'] = ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
-
-  # TODO(user): Make ascending default to True
-  @_utils.accept_opt_prefix('opt_ascending')
-  def sort(self, prop: str, ascending: Optional[bool] = None) -> Any:
-    """Sort a collection by the specified property.
-
-    Args:
-       prop: The property to sort by.
-       ascending: Whether to sort in ascending or descending order.  The default
-         is true (ascending).
-
-    Returns:
-       The collection.
-    """
-    args = {'collection': self, 'key': prop}
-    if ascending is not None:
-      args['ascending'] = ascending
-    return self._cast(
-        apifunction.ApiFunction.apply_('Collection.limit', args))
-
-  @staticmethod
-  def name() -> str:
-    return 'Collection'
-
-  @staticmethod
-  def elementType() -> Type[element.Element]:
-    """Returns the type of the collection's elements."""
-    return element.Element
 
   # TODO(user): Can dropNulls default to False?
   @_utils.accept_opt_prefix('opt_dropNulls')
@@ -247,30 +290,21 @@ class Collection(element.Element):
         )
     )
 
-  def iterate(
-      self, algorithm: Callable[[Any, Any], Any], first: Optional[Any] = None
-  ) -> Any:
-    """Iterates over a collection with an algorithm.
-
-    Applies a user-supplied function to each element of a collection. The
-    user-supplied function is given two arguments: the current element, and
-    the value returned by the previous call to iterate() or the first argument,
-    for the first iteration. The result is the value returned by the final
-    call to the user-supplied function.
+  # TODO(user): Make ascending default to True
+  @_utils.accept_opt_prefix('opt_ascending')
+  def sort(self, prop: str, ascending: Optional[bool] = None) -> Any:
+    """Sort a collection by the specified property.
 
     Args:
-      algorithm: The function to apply to each element. Must take two
-          arguments - an element of the collection and the value from the
-          previous iteration.
-      first: The initial state.
+       prop: The property to sort by.
+       ascending: Whether to sort in ascending or descending order.  The default
+         is true (ascending).
 
     Returns:
-      The result of the Collection.iterate() call.
-
-    Raises:
-      ee_exception.EEException: if algorithm is not a function.
+       The collection.
     """
-    element_type = self.elementType()
-    with_cast = lambda e, prev: algorithm(element_type(e, None), prev)
-    return apifunction.ApiFunction.call_(
-        'Collection.iterate', self, with_cast, first)
+    args = {'collection': self, 'key': prop}
+    if ascending is not None:
+      args['ascending'] = ascending
+    return self._cast(
+        apifunction.ApiFunction.apply_('Collection.limit', args))
