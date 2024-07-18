@@ -270,6 +270,13 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
 
         credentials, unused_project_id = google.auth.default()
         print(f'TEMP_LOGGING: credentials={credentials} unused_project_id={unused_project_id}')
+        print(f'TEMP_LOGGING: credentials.service_account_email={credentials.service_account_email} credentials.scopes={credentials.scopes} credentials.default_scopes={credentials.default_scopes}')
+        print(f'TEMP_LOGGING: Trying to refresh credentials...')
+        try:
+          credentials.refresh()
+        except google.auth.exceptions.RefreshError as e:
+          print(f'TEMP_LOGGING: RefreshError {e}')
+        print(f'TEMP_LOGGING: Done refreshing credentials...')
     except google.auth.exceptions.DefaultCredentialsError:
       print('TEMP_LOGGING: DefaultCredentialsError')
 
