@@ -238,7 +238,7 @@ def is_initialized() -> bool:
 
 
 def get_persistent_credentials() -> credentials_lib.Credentials:
-  """Read persistent credentials from ~/.config/earthengine or ADC.
+    """Read persistent credentials from ~/.config/earthengine or ADC.
 
   Raises EEException with helpful explanation if credentials don't exist.
 
@@ -246,46 +246,59 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
     OAuth2Credentials built from persistently stored refresh_token, containing
     the client project in the quota_project_id field, if available.
   """
-  print('TEMP_LOGGING: get_persistent_credentials')
+    print('TEMP_LOGGING: get_persistent_credentials')
 
-  credentials = None
-  args = {}
-  try:
-    args = oauth.get_credentials_arguments()
-    print(f'TEMP_LOGGING: oauth.get_credentials_arguments() args are -> {args}')
-  except IOError:
-    print('TEMP_LOGGING: IOError calling oauth.get_credentials_arguments()')
-
-  if args.get('refresh_token'):
-    print('TEMP_LOGGING: refresh_token is populated')
-    credentials = credentials_lib.Credentials(None, **args)
-  else:
-    print('TEMP_LOGGING: refresh_token isn\'t populated')
-    # If EE credentials aren't available, try application default credentials.
+    credentials = None
+    args = {}
     try:
-      with warnings.catch_warnings():
-        # _default.py gives incorrect advice here: gcloud config set project
-        # sets the default resource project but we need the quota project.
-        warnings.filterwarnings('ignore', '.*(No project ID|quota project).*')
+        args = oauth.get_credentials_arguments()
+        print(f"TEMP_LOGGING: oauth.get_credentials_arguments() args are -> {args}")
+    except IOError:
+        print("TEMP_LOGGING: IOError calling oauth.get_credentials_arguments()")
 
-        credentials, unused_project_id = google.auth.default()
-        print(f'TEMP_LOGGING: credentials={credentials} unused_project_id={unused_project_id}')
-        print(f'TEMP_LOGGING: credentials.service_account_email={credentials.service_account_email} credentials.scopes={credentials.scopes} credentials.default_scopes={credentials.default_scopes}')
-    except google.auth.exceptions.DefaultCredentialsError:
-      print('TEMP_LOGGING: DefaultCredentialsError')
+    if args.get("refresh_token"):
+        print("TEMP_LOGGING: refresh_token is populated")
+        credentials = credentials_lib.Credentials(None, **args)
+    else:
+        print("TEMP_LOGGING: refresh_token isn't populated")
+        # If EE credentials aren't available, try application default credentials.
+        try:
+            with warnings.catch_warnings():
+                # _default.py gives incorrect advice here: gcloud config set project
+                # sets the default resource project but we need the quota project.
+                warnings.filterwarnings("ignore", ".*(No project ID|quota project).*")
 
-  if credentials:
-    # earthengine set_project always overrides gcloud set-quota-project
-    project = args.get('quota_project_id') or oauth.get_appdefault_project()
-    if project and project != credentials.quota_project_id:
-      credentials = credentials.with_quota_project(project)
-    print(f'TEMP_LOGGING: About to return the credentials: {credentials}')
-    return credentials
-  raise ee_exception.EEException(  # pylint: disable=raise-missing-from
-      'Please authorize access to your Earth Engine account by '
-      'running\n\nearthengine authenticate\n\n'
-      'in your command line, or ee.Authenticate() in Python, and then retry.'
-  )
+                credentials, unused_project_id = google.auth.default()
+                print(
+                    f"TEMP_LOGGING: credentials={credentials} unused_project_id={unused_project_id}"
+                )
+                print(
+                    f"TEMP_LOGGING: credentials.service_account_email={credentials.service_account_email}"
+                )
+                print(f"TEMP_LOGGING: credentials.scopes={credentials.scopes}")
+                print(
+                    f"TEMP_LOGGING: credentials.default_scopes={credentials.default_scopes}"
+                )
+                print(
+                    f"TEMP_LOGGING: credentials.requires_scopes={credentials.requires_scopes}"
+                )
+                print(f"TEMP_LOGGING: credentials.valid={credentials.valid}")
+                print(f"TEMP_LOGGING: credentials.expired={credentials.expired}")
+        except google.auth.exceptions.DefaultCredentialsError:
+            print("TEMP_LOGGING: DefaultCredentialsError")
+
+    if credentials:
+        # earthengine set_project always overrides gcloud set-quota-project
+        project = args.get("quota_project_id") or oauth.get_appdefault_project()
+        if project and project != credentials.quota_project_id:
+            credentials = credentials.with_quota_project(project)
+        print(f"TEMP_LOGGING: About to return the credentials: {credentials}")
+        return credentials
+    raise ee_exception.EEException(  # pylint: disable=raise-missing-from
+        "Please authorize access to your Earth Engine account by "
+        "running\n\nearthengine authenticate\n\n"
+        "in your command line, or ee.Authenticate() in Python, and then retry."
+    )
 
 
 def reset() -> None:
