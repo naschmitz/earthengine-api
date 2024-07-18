@@ -293,7 +293,8 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
         if project and project != credentials.quota_project_id:
             credentials = credentials.with_quota_project(project)
         print(f"TEMP_LOGGING: About to return the credentials: {credentials}")
-        return credentials
+        if oauth.is_valid_credentials(credentials):
+            return credentials
     raise ee_exception.EEException(  # pylint: disable=raise-missing-from
         "Please authorize access to your Earth Engine account by "
         "running\n\nearthengine authenticate\n\n"

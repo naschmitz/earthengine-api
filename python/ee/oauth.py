@@ -129,10 +129,17 @@ def get_appdefault_project() -> Optional[str]:
 def _valid_credentials_exist() -> bool:
     try:
         creds = ee_data.get_persistent_credentials()
-        creds.refresh(google.auth.transport.requests.Request())
-        return True
-    except (ee_exception.EEException, google.auth.exceptions.RefreshError):
+        return is_valid_credentials(creds)
+    except ee_exception.EEException:
         return False
+
+
+def is_valid_credentials(credentials: Optional[Any]) -> bool:
+    try:
+        credentials.refresh(google.auth.transport.requests.Request())
+    except google.auth.exceptions.RefreshError:
+        return False
+    return True
 
 
 def get_authorization_url(
