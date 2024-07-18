@@ -102,7 +102,7 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
         'filter': noop_filter
     }, filtered.args)
 
-  def test_first(self):
+  def test_first_lookup(self):
     """Verifies that first gets promoted properly."""
     first = ee.ImageCollection(ee.Image(1)).first()
     self.assertIsInstance(first, ee.Image)
@@ -142,6 +142,275 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
         .serialize()
     )
     self.assertIn('"newNames": {"constantValue": ["name_a", "name_b"]}', result)
+
+  def test_aggregate_array(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.array',
+    })
+    expression = ee.ImageCollection('a').aggregate_array(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_array(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_count(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.count',
+    })
+    expression = ee.ImageCollection('a').aggregate_count(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_count(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_count_distinct(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.count_distinct',
+    })
+    expression = ee.ImageCollection('a').aggregate_count_distinct(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_count_distinct(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_first(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.first',
+    })
+    expression = ee.ImageCollection('a').aggregate_first(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_first(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_histogram(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.histogram',
+    })
+    expression = ee.ImageCollection('a').aggregate_histogram(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_histogram(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_max(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.max',
+    })
+    expression = ee.ImageCollection('a').aggregate_max(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_max(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_mean(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.mean',
+    })
+    expression = ee.ImageCollection('a').aggregate_mean(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_mean(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_min(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.min',
+    })
+    expression = ee.ImageCollection('a').aggregate_min(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_min(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_product(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.product',
+    })
+    expression = ee.ImageCollection('a').aggregate_product(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_product(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sample_sd(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sample_sd',
+    })
+    expression = ee.ImageCollection('a').aggregate_sample_sd(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_sample_sd(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sample_var(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sample_var',
+    })
+    expression = ee.ImageCollection('a').aggregate_sample_var(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_sample_var(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_stats(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.stats',
+    })
+    expression = ee.ImageCollection('a').aggregate_stats(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_stats(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sum(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sum',
+    })
+    expression = ee.ImageCollection('a').aggregate_sum(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_sum(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_total_sd(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.total_sd',
+    })
+    expression = ee.ImageCollection('a').aggregate_total_sd(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_total_sd(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_total_var(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.total_var',
+    })
+    expression = ee.ImageCollection('a').aggregate_total_var(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').aggregate_total_var(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_cast(self):
     band_types = {'a': 'int8'}
@@ -229,6 +498,95 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_distinct(self):
+    collection = ee.ImageCollection('a')
+    properties = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'properties': {'constantValue': properties},
+        },
+        'functionName': 'Collection.distinct',
+    })
+    expression = collection.distinct(properties)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.distinct(properties=properties)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_draw(self):
+    collection = ee.ImageCollection('a')
+    color = 'red'
+    point_radius = 1
+    stroke_width = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'color': {'constantValue': color},
+            'pointRadius': {'constantValue': point_radius},
+            'strokeWidth': {'constantValue': stroke_width},
+        },
+        'functionName': 'Collection.draw',
+    })
+    expression = collection.draw(color, point_radius, stroke_width)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.draw(
+        color=color, pointRadius=point_radius, strokeWidth=stroke_width
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_error_matrix(self):
+    collection = ee.ImageCollection('a')
+    actual = 'b'
+    predicted = 'c'
+    order = [1, 2]
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'actual': {'constantValue': actual},
+            'predicted': {'constantValue': predicted},
+            'order': {'constantValue': order},
+        },
+        'functionName': 'Collection.errorMatrix',
+    })
+    expression = collection.errorMatrix(actual, predicted, order)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.errorMatrix(
+        actual=actual, predicted=predicted, order=order
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_first(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+        },
+        'functionName': 'Collection.first',
+    })
+    expression = collection.first()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_flatten(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+        },
+        'functionName': 'Collection.flatten',
+    })
+    expression = collection.flatten()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_forma_trend(self):
     covariates = ee.ImageCollection('b')
@@ -254,6 +612,25 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   # fromImages already tested in other tests.
+
+  def test_geometry(self):
+    max_error = 1.1
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': 1.1}},
+                }
+            },
+        },
+        'functionName': 'Collection.geometry',
+    })
+    expression = collection.geometry(max_error)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_get_region(self):
     geometry = ee.Geometry.Point([1, 2])
@@ -355,6 +732,30 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_random_column(self):
+    collection = ee.ImageCollection('a')
+    column_name = 'column a'
+    seed = 1
+    distribution = 'uniform'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'columnName': {'constantValue': column_name},
+            'seed': {'constantValue': seed},
+            'distribution': {'constantValue': distribution},
+        },
+        'functionName': 'Collection.randomColumn',
+    })
+    expression = collection.randomColumn(column_name, seed, distribution)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.randomColumn(
+        columnName=column_name, seed=seed, distribution=distribution
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_reduce(self):
     reducer = ee.Reducer.sum()
     parallel_scale = 1
@@ -377,6 +778,148 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
 
     expression = ee.ImageCollection('a').reduce(
         reducer=reducer, parallelScale=parallel_scale
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_reduce_columns(self):
+    collection = ee.ImageCollection('a')
+    reducer = ee.Reducer.sum()
+    selectors = ['b', 'c']
+    weight_selectors = ['d', 'e']
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+            'selectors': {'constantValue': selectors},
+            'weightSelectors': {'constantValue': weight_selectors},
+        },
+        'functionName': 'Collection.reduceColumns',
+    })
+    expression = collection.reduceColumns(reducer, selectors, weight_selectors)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.reduceColumns(
+        reducer=reducer, selectors=selectors, weightSelectors=weight_selectors
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_reduce_to_image(self):
+    collection = ee.ImageCollection('a')
+    properties = ['b', 'c']
+    reducer = ee.Reducer.sum()
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'properties': {'constantValue': properties},
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+        },
+        'functionName': 'Collection.reduceToImage',
+    })
+    expression = collection.reduceToImage(properties, reducer)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.reduceToImage(
+        properties=properties, reducer=reducer
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_remap(self):
+    collection = ee.ImageCollection('a')
+    lookup_in = ['b', 1]
+    lookup_out = [2, 3]
+    column_name = 'column name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'lookupIn': {'constantValue': lookup_in},
+            'lookupOut': {'constantValue': lookup_out},
+            'columnName': {'constantValue': column_name},
+        },
+        'functionName': 'Collection.remap',
+    })
+    expression = collection.remap(lookup_in, lookup_out, column_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.remap(
+        lookupIn=lookup_in, lookupOut=lookup_out, columnName=column_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_size(self):
+    collection = ee.ImageCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+        },
+        'functionName': 'Collection.size',
+    })
+    expression = collection.size()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_style(self):
+    collection = ee.ImageCollection('a')
+    color = 'red'
+    point_size = 1
+    point_shape = 'circle'
+    width = 2.3
+    fill_color = 'cadetblue'
+    style_property = 'property name'
+    neighborhood = 3
+    line_type = 'dotted'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'color': {'constantValue': color},
+            'pointSize': {'constantValue': point_size},
+            'pointShape': {'constantValue': point_shape},
+            'width': {'constantValue': width},
+            'fillColor': {'constantValue': fill_color},
+            'styleProperty': {'constantValue': style_property},
+            'neighborhood': {'constantValue': neighborhood},
+            'lineType': {'constantValue': line_type},
+        },
+        'functionName': 'Collection.style',
+    })
+    expression = collection.style(
+        color,
+        point_size,
+        point_shape,
+        width,
+        fill_color,
+        style_property,
+        neighborhood,
+        line_type,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.style(
+        color=color,
+        pointSize=point_size,
+        pointShape=point_shape,
+        width=width,
+        fillColor=fill_color,
+        styleProperty=style_property,
+        neighborhood=neighborhood,
+        lineType=line_type,
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -417,6 +960,49 @@ class ImageCollectionTest(apitestcase.ApiTestCase):
         'functionName': 'ImageCollection.toBands',
     })
     expression = ee.ImageCollection('a').toBands()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_to_list(self):
+    collection = ee.ImageCollection('a')
+    count = 1
+    offset = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'count': {'constantValue': count},
+            'offset': {'constantValue': offset},
+        },
+        'functionName': 'Collection.toList',
+    })
+    expression = collection.toList(count, offset)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.toList(count=count, offset=offset)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_union(self):
+    collection = ee.ImageCollection('a')
+    max_error = 1.1
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': IMAGES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': max_error}},
+                }
+            },
+        },
+        'functionName': 'Collection.union',
+    })
+    expression = collection.union(max_error)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.union(maxError=max_error)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
