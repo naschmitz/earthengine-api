@@ -38,4 +38,4 @@ jobs:
           pip install ./python[tests]
       - name: Test
         run: |
-          python -m unittest discover --pattern="*test.py" --start-directory python/ee/tests
+          python -m unittest discover --pattern="*test.py" --start-directory python/ee/cli
